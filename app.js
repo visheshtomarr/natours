@@ -3,8 +3,20 @@ const fs = require('fs');
 
 const app = express();
 
+// All the middlewares in the "Middleware stack" has access to the
+// 'req', 'res' and 'next' variable.
 // Middleware to send data through requests.
 app.use(express.json());
+
+app.use((req, res, next) => {
+    console.log('Hello from the middleware!');
+    next();
+});
+
+app.use((req, res, next) => {
+    req.requestTime = new Date().toDateString();
+    next();
+})
 
 // Getting 'tours' data from file.
 const tours = JSON.parse(
@@ -14,6 +26,7 @@ const tours = JSON.parse(
 const getAlltours = (req, res) => {
     res.status(200).json({
         status: 'success',
+        requestedAt: req.requestTime,
         results: tours.length,
         data: {
             tours
