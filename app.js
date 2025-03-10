@@ -1,12 +1,17 @@
 const express = require('express');
 const fs = require('fs');
+const morgan = require('morgan');
 
 const app = express();
 
+// MIDDLEWARES
 // All the middlewares in the "Middleware stack" has access to the
 // 'req', 'res' and 'next' variable.
 // Middleware to send data through requests.
 app.use(express.json());
+
+// Logger middleware
+app.use(morgan('dev'));
 
 app.use((req, res, next) => {
     console.log('Hello from the middleware!');
@@ -33,6 +38,8 @@ const getAlltours = (req, res) => {
         },
     });
 }
+
+// ROUTE HANDLERS
 
 const getTour = (req, res) => {
     // console.log(req.params);
@@ -122,6 +129,8 @@ const deleteTour = (req, res) => {
 
 // // Creating a 'delete' api to delete an existing tour.
 // app.delete('/api/v1/tours/:id', deleteTour);
+
+// ROUTES
 
 app.route('/api/v1/tours').get(getAlltours).post(createTour);
 app.route('/api/v1/tours/:id').get(getTour).patch(updateTour).delete(deleteTour);
