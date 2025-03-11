@@ -19,6 +19,18 @@ const checkId = (req, res, next, value) => {
     next();
 }
 
+// A middleware to check if body contains the name and price property.
+const checkBody = (req, res, next) => {
+    if (!req.body.name || !req.body.price) {
+        // return a response of "bad request".
+        return res.status(400).json({
+            status: 'fail',
+            message: 'name or price property undefined!',
+        });
+    }
+    next();
+}
+
 const getAlltours = (req, res) => {
     res.status(200).json({
         status: 'success',
@@ -102,5 +114,6 @@ module.exports = {
     createTour,
     updateTour,
     deleteTour,
-    checkId
+    checkId,
+    checkBody
 }
