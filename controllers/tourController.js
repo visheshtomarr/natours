@@ -5,6 +5,20 @@ const tours = JSON.parse(
     fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
 );
 
+// A param middleware.
+// This middleware will check whether the 'id' entered is correct or not.
+const checkId = (req, res, next, value) => {
+    console.log(`Tour id: ${value}`);
+
+    if (Number(req.params.id) > tours.length) {
+        return res.status(404).json({
+            status: 'fail',
+            message: 'Invalid ID',
+        });
+    }
+    next();
+}
+
 const getAlltours = (req, res) => {
     res.status(200).json({
         status: 'success',
@@ -26,7 +40,7 @@ const getTour = (req, res) => {
 
     // If no tour with the provided id is found, we return "404 not found".
     if (!tour) {
-        res.status(404).json({
+        return res.status(404).json({
             status: "fail",
             message: "Invalid ID",
         });
@@ -62,7 +76,7 @@ const createTour = (req, res) => {
 
 const updateTour = (req, res) => {
     if (Number(req.params.id) > tours.length) {
-        res.status(404).json({
+        return res.status(404).json({
             status: 'fail',
             message: 'Invalid ID',
         });
@@ -75,13 +89,6 @@ const updateTour = (req, res) => {
 }
 
 const deleteTour = (req, res) => {
-    if (Number(req.params.id) > tours.length) {
-        res.status(404).json({
-            status: 'fail',
-            message: 'Invalid ID',
-        });
-    }
-
     // Status '204' means no content, so we send 'null'. 
     res.status(204).json({
         status: 'success',
@@ -94,5 +101,6 @@ module.exports = {
     getTour,
     createTour,
     updateTour,
-    deleteTour
+    deleteTour,
+    checkId
 }
