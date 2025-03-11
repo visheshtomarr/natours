@@ -8,11 +8,15 @@ const app = express();
 // MIDDLEWARES
 // All the middlewares in the "Middleware stack" has access to the
 // 'req', 'res' and 'next' variable.
+
+if (process.env.NODE_ENV === 'development') {
+    // Logger middleware
+    app.use(morgan('dev'));
+}
+
 // Middleware to send data through requests.
 app.use(express.json());
 
-// Logger middleware
-app.use(morgan('dev'));
 
 app.use((req, res, next) => {
     console.log('Hello from the middleware!');
