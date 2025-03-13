@@ -70,7 +70,7 @@ const updateTour = async (req, res) => {
             // the validators specified in the schema will run when 
             // document is updated.
             runValidators: true
-        })
+        });
 
         res.status(200).json({
             status: 'success',
@@ -86,12 +86,20 @@ const updateTour = async (req, res) => {
     }
 }
 
-const deleteTour = (req, res) => {
-    // Status '204' means no content, so we send 'null'. 
-    res.status(204).json({
-        status: 'success',
-        data: null,
-    });
+const deleteTour = async (req, res) => {
+    try {
+        await Tour.findByIdAndDelete(req.params.id);
+        // Status '204' means no content, so we send 'null'. 
+        res.status(204).json({
+            status: 'success',
+            data: null,
+        });
+    } catch (error) {
+        res.status(400).json({
+            status: 'fail',
+            message: error
+        });
+    }
 }
 
 module.exports = {
