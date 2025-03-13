@@ -5,14 +5,13 @@ const {
     createTour,
     updateTour,
     deleteTour,
-    checkId,
     checkBody
 } = require('./../controllers/tourController');
 
 const router = express.Router();
 
-// A param middleware to check whether the id is valid or not.
-router.param('id', checkId);
+// // A param middleware to check whether the id is valid or not.
+// router.param('id', checkId);
 
 router
     .route('/')
