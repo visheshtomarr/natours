@@ -61,11 +61,29 @@ const createTour = async (req, res) => {
     }
 }
 
-const updateTour = (req, res) => {
-    res.status(200).json({
-        status: 'success',
-        message: 'Updated tour',
-    });
+const updateTour = async (req, res) => {
+    try {
+        // All the find methods on a model are query methods.
+        const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
+            // returns the object after updation.
+            new: true,
+            // the validators specified in the schema will run when 
+            // document is updated.
+            runValidators: true
+        })
+
+        res.status(200).json({
+            status: 'success',
+            data: {
+                tour
+            },
+        });
+    } catch (error) {
+        res.status(400).json({
+            status: 'fail',
+            message: error
+        });
+    }
 }
 
 const deleteTour = (req, res) => {
