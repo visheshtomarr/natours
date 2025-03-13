@@ -5,39 +5,40 @@ const Tour = require('./../models/tourModel');
 //     fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
 // );
 
-const getAlltours = (req, res) => {
-    res.status(200).json({
-        status: 'success',
-        requestedAt: req.requestTime,
-        // results: tours.length,
-        // data: {
-        //     tours
-        // },
-    });
+const getAlltours = async (req, res) => {
+    try {
+        const tours = await Tour.find();
+        res.status(200).json({
+            status: 'success',
+            results: tours.length,
+            data: {
+                tours
+            },
+        });
+    } catch (error) {
+        res.status(404).json({
+            status: 'fail',
+            message: error
+        });
+    }
 }
 
-const getTour = (req, res) => {
-    // console.log(req.params);
-    // Convert the value of id from the params to a number type.
-    const id = Number(req.params.id);
-
-    // // Find the tour corresponding to the id.
-    // const tour = tours.find(tour => tour.id === id);
-
-    // // If no tour with the provided id is found, we return "404 not found".
-    // if (!tour) {
-    //     return res.status(404).json({
-    //         status: "fail",
-    //         message: "Invalid ID",
-    //     });
-    // }
-
-    // res.status(200).json({
-    //     status: 'success',
-    //     data: {
-    //         tour
-    //     },
-    // });
+const getTour = async (req, res) => {
+    try {
+        // Find tour by id.
+        const tour = await Tour.findById(req.params.id);
+        res.status(200).json({
+            status: 'success',
+            data: {
+                tour
+            },
+        });
+    } catch (error) {
+        res.status(404).json({
+            status: 'fail',
+            message: error
+        });
+    }
 }
 
 const createTour = async (req, res) => {
