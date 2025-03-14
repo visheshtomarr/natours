@@ -5,6 +5,16 @@ const Tour = require('./../models/tourModel');
 //     fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
 // );
 
+// A middleware for requesting top 5 cheapest tours.
+const aliasTopTours = async (req, res, next) => {
+    req.query.limit = '5';
+    // This will sort the tours in descending order of 'ratingsAverage'
+    // and ascending order of 'price'.
+    req.query.sort = '-ratingsAverage,price';
+    req.query.fields = 'name,difficulty,price,ratingsAverage,summary';
+    next();
+}
+
 const getAlltours = async (req, res) => {
     try {
         // Build query
@@ -154,5 +164,6 @@ module.exports = {
     getTour,
     createTour,
     updateTour,
-    deleteTour
+    deleteTour,
+    aliasTopTours
 }
