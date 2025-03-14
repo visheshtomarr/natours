@@ -28,10 +28,6 @@ const getAlltours = async (req, res) => {
             const sortBy = req.query.sort.split(',').join(' ');
             query = query.sort(sortBy);
         }
-        // A default sort based on the field 'createdAt' in descending order.
-        else {
-            query = query.sort('-createdAt');
-        }
 
         // 4) Field limiting
         if (req.query.fields) {
@@ -41,6 +37,19 @@ const getAlltours = async (req, res) => {
         // A default field that we want to exclude.
         else {
             query = query.select('-__v');
+        }
+
+        // 5) Pagination
+        const page = req.query.page * 1 || 1;
+        const limit = req.query.limit * 1 || 100;
+        const skip = (page - 1) * limit;
+
+        query = query.skip(skip).limit(limit);
+
+        // If a user asks for a page that does not exist.
+        if (req.query.page) {
+            const numTours = await Tour.countDocuments();
+            if (skip >= numTours) throw new Error('This page does not exist');
         }
 
         // Build tours
@@ -56,7 +65,7 @@ const getAlltours = async (req, res) => {
     } catch (error) {
         res.status(404).json({
             status: 'fail',
-            message: error
+            message: error.message
         });
     }
 }
