@@ -7,7 +7,25 @@ const Tour = require('./../models/tourModel');
 
 const getAlltours = async (req, res) => {
     try {
-        const tours = await Tour.find();
+        // Build query
+        // 1) Filtering
+        // To create a shallow copy of the original req.query object,
+        // we use destructuring.
+        const queryObj = { ...req.query };
+        const excludeFields = ['page', 'sort', 'limit', 'fields'];
+        excludeFields.forEach(field => delete queryObj[field]);
+
+        // 2) Advanced filtering
+        let queryStr = JSON.stringify(queryObj);
+        queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, matchStr => `$${matchStr}`);
+        // console.log(JSON.parse(queryStr));
+
+        // This will return the tours based on our updated query.
+        const query = Tour.find(JSON.parse(queryStr));
+
+        // Build tour
+        const tours = await query;
+
         res.status(200).json({
             status: 'success',
             results: tours.length,
