@@ -1,4 +1,5 @@
 const Tour = require('./../models/tourModel');
+const APIFeatures = require('./../utils/apiFeatures');
 
 // // Getting 'tours' data from file.
 // const tours = JSON.parse(
@@ -18,49 +19,12 @@ const aliasTopTours = async (req, res, next) => {
 const getAlltours = async (req, res) => {
     try {
         // Build query
-        // 1) Filtering
-        // To create a shallow copy of the original req.query object,
-        // we use destructuring.
-        const queryObj = { ...req.query };
-        const excludeFields = ['page', 'sort', 'limit', 'fields'];
-        excludeFields.forEach(field => delete queryObj[field]);
-
-        // 2) Advanced filtering
-        let queryStr = JSON.stringify(queryObj);
-        queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, matchStr => `$${matchStr}`);
-        // console.log(JSON.parse(queryStr));
-
-        // This will return the tours based on our updated query.
-        let query = Tour.find(JSON.parse(queryStr));
-
-        // 3) Sorting
-        if (req.query.sort) {
-            const sortBy = req.query.sort.split(',').join(' ');
-            query = query.sort(sortBy);
-        }
-
-        // 4) Field limiting
-        if (req.query.fields) {
-            const fields = req.query.fields.split(',').join(' ');
-            query = query.select(fields);
-        }
-        // A default field that we want to exclude.
-        else {
-            query = query.select('-__v');
-        }
-
-        // 5) Pagination
-        const page = req.query.page * 1 || 1;
-        const limit = req.query.limit * 1 || 100;
-        const skip = (page - 1) * limit;
-
-        query = query.skip(skip).limit(limit);
-
-        // If a user asks for a page that does not exist.
-        if (req.query.page) {
-            const numTours = await Tour.countDocuments();
-            if (skip >= numTours) throw new Error('This page does not exist');
-        }
+        const features = new APIFeatures(Tour.find(), req.query)
+            .filter()
+            .sort()
+            .limitFields()
+            .paginate();
+        const query = features.query;
 
         // Build tours
         const tours = await query;
