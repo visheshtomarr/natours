@@ -21,9 +21,29 @@ const getAlltours = async (req, res) => {
         // console.log(JSON.parse(queryStr));
 
         // This will return the tours based on our updated query.
-        const query = Tour.find(JSON.parse(queryStr));
+        let query = Tour.find(JSON.parse(queryStr));
 
-        // Build tour
+        // 3) Sorting
+        if (req.query.sort) {
+            const sortBy = req.query.sort.split(',').join(' ');
+            query = query.sort(sortBy);
+        }
+        // A default sort based on the field 'createdAt' in descending order.
+        else {
+            query = query.sort('-createdAt');
+        }
+
+        // 4) Field limiting
+        if (req.query.fields) {
+            const fields = req.query.fields.split(',').join(' ');
+            query = query.select(fields);
+        }
+        // A default field that we want to exclude.
+        else {
+            query = query.select('-__v');
+        }
+
+        // Build tours
         const tours = await query;
 
         res.status(200).json({
