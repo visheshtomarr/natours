@@ -54,7 +54,11 @@ const tourSchema = new mongoose.Schema({
         default: Date.now(),
         select: false
     },
-    startDates: [Date]
+    startDates: [Date],
+    secretTour: {
+        type: Boolean,
+        default: false
+    }
 }, {
     toJSON: { virtuals: true },
     toObject: { virtuals: true }
@@ -79,6 +83,15 @@ tourSchema.pre('save', function (next) {
 //     console.log(doc);
 //     next();
 // });
+
+// Query middleware
+// This middleware will execute for every query that 
+// starts with 'find'.
+tourSchema.pre(/^find/, function (next) {
+    // 'this' will be a query object in this middlware.
+    this.find({ secretTour: { $ne: 'true' } });
+    next();
+});
 
 // Creates a model from our schema.
 const Tour = mongoose.model('Tour', tourSchema);
