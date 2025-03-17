@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const slugify = require('slugify');
 
 // Creates the schema of our document.
 const tourSchema = new mongoose.Schema({
@@ -8,6 +9,7 @@ const tourSchema = new mongoose.Schema({
         unique: true,
         trim: true
     },
+    slug: String,
     duration: {
         type: Number,
         required: [true, 'A tour must have a duration']
@@ -62,6 +64,21 @@ const tourSchema = new mongoose.Schema({
 tourSchema.virtual('durationWeeks').get(function () {
     return this.duration / 7;
 });
+
+// Document Middleware
+// This middleware only runs before '.save()' and '.create()' method.
+// This middleware is also called as pre-save hook.
+tourSchema.pre('save', function (next) {
+    this.slug = slugify(this.name, { lower: true });
+    next();
+});
+
+// // The post-save hook doesn't have the 'this' keyword,
+// // instead it has access to the saved document. 
+// tourSchema.post('save', (doc, next) => {
+//     console.log(doc);
+//     next();
+// });
 
 // Creates a model from our schema.
 const Tour = mongoose.model('Tour', tourSchema);
