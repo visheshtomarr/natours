@@ -8,7 +8,7 @@ const catchAsync = require('./../utils/catchAsync');
 // );
 
 // A middleware for requesting top 5 cheapest tours.
-const aliasTopTours = async (req, res, next) => {
+const aliasTopTours = (req, res, next) => {
     req.query.limit = '5';
     // This will sort the tours in descending order of 'ratingsAverage'
     // and ascending order of 'price'.
@@ -18,7 +18,7 @@ const aliasTopTours = async (req, res, next) => {
 }
 
 // To get tour statistics.
-const getTourStats = catchAsync(async (req, res) => {
+const getTourStats = catchAsync(async (req, res, next) => {
     const stats = await Tour.aggregate([
         {
             $match: { ratingsAverage: { $gte: 4.5 } }
@@ -50,7 +50,7 @@ const getTourStats = catchAsync(async (req, res) => {
 });
 
 // To plan the busiest month of year for tours.
-const getMonthlyPlan = catchAsync(async (req, res) => {
+const getMonthlyPlan = catchAsync(async (req, res, next) => {
     const year = Number(req.params.year);
 
     const plan = await Tour.aggregate([
@@ -93,7 +93,7 @@ const getMonthlyPlan = catchAsync(async (req, res) => {
     });
 });
 
-const getAlltours = catchAsync(async (req, res) => {
+const getAlltours = catchAsync(async (req, res, next) => {
     // Build query
     const features = new APIFeatures(Tour.find(), req.query)
         .filter()
@@ -114,7 +114,7 @@ const getAlltours = catchAsync(async (req, res) => {
     });
 });
 
-const getTour = catchAsync(async (req, res) => {
+const getTour = catchAsync(async (req, res, next) => {
     // Find tour by id.
     const tour = await Tour.findById(req.params.id);
     res.status(200).json({
@@ -125,7 +125,7 @@ const getTour = catchAsync(async (req, res) => {
     });
 });
 
-const createTour = catchAsync(async (req, res) => {
+const createTour = catchAsync(async (req, res, next) => {
     // .create() method will create and save a new 
     // tour in our database.
     const newTour = await Tour.create(req.body);
@@ -138,7 +138,7 @@ const createTour = catchAsync(async (req, res) => {
     });
 });
 
-const updateTour = catchAsync(async (req, res) => {
+const updateTour = catchAsync(async (req, res, next) => {
     // All the find methods on a model are query methods.
     const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
         // returns the object after updation.
@@ -156,7 +156,7 @@ const updateTour = catchAsync(async (req, res) => {
     });
 });
 
-const deleteTour = catchAsync(async (req, res) => {
+const deleteTour = catchAsync(async (req, res, next) => {
     await Tour.findByIdAndDelete(req.params.id);
     // Status '204' means no content, so we send 'null'. 
     res.status(204).json({
