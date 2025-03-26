@@ -1,36 +1,43 @@
-const sendErrorDev = (err, res) => {
-    res.status(err.statusCode).json({
-        status: err.status,
-        error: err,
-        message: err.message,
-        stack: err.stack
+const AppError = require('./../utils/appError');
+
+const handleCastErrorDB = errCast => {
+    const message = `Invalid ${errCast.path}: ${errCast.value}`;
+    return new AppError(message, 400);
+}
+
+const sendErrorDev = (errorDev, res) => {
+    res.status(errorDev.statusCode).json({
+        status: errorDev.status,
+        error: errorDev,
+        message: errorDev.message,
+        stack: errorDev.stack
     });
 }
 
-const sendErrorProd = (err, res) => {
+const sendErrorProd = (errorProd, res) => {
     // Operational error, It is trusted and message can be sent to client.
-    if (err.isOperational) {
-        res.status(err.statusCode).json({
-            status: err.status,
-            message: err.message
+    if (errorProd.isOperational) {
+        res.status(errorProd.statusCode).json({
+            status: errorProd.status,
+            message: errorProd.message
         });
     }
     // Programming or any other unknown error, It cannot be trusted
     // and we don't leak the error details to client.
     else {
         // 1. Log to console.
-        console.error('Error: ', err);
+        // console.error('Error: ', err);
 
         // Send a generic error message.
         res.status(500).json({
-            status: 'error',
+            status: errorProd.status,
             message: 'Something went wrong!'
         });
     }
 }
 
-module.exports = (err, req, res, next) => {
-    console.log(err.stack);
+const globalErrorHandler = (err, req, res, next) => {
+    // console.log(err.stack);
 
     err.statusCode = err.statusCode || 500;
     err.status = err.status || 'error';
@@ -39,6 +46,12 @@ module.exports = (err, req, res, next) => {
         sendErrorDev(err, res);
     }
     else if (process.env.NODE_ENV === 'production') {
-        sendErrorProd(err, res);
+        let errCopy = { ...err };
+
+        if (errCopy.name === 'CastError') errCopy = handleCastErrorDB(errCopy);
+
+        sendErrorProd(errCopy, res);
     }
 }
+
+module.exports = globalErrorHandler;
