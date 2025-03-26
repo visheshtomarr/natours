@@ -1,6 +1,13 @@
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 
+// Handle any uncaught exception that occurs in synchronous code.
+process.on('uncaughtException', err => {
+    console.log('Uncaught Exception! Shutting down...');
+    console.log(err.name, err.message);
+    process.exit(1);
+})
+
 // Read the environment variable file.
 dotenv.config({ path: './config.env' });
 
@@ -17,6 +24,15 @@ mongoose.connect(DB, {
 }).then(() => console.log('DB connection successful!'));
 
 const port = process.env.PORT;
-app.listen(port, () => {
+const server = app.listen(port, () => {
     console.log(`Listening on port number: ${port}`);
-})
+});
+
+// Handle unhandled promise rejection.
+process.on('unhandledRejection', err => {
+    console.log('Unhandled Rejection! Shutting down...');
+    console.log(err.name, err.message);
+    server.close(() => {
+        process.exit(1);
+    });
+});
