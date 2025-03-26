@@ -5,6 +5,12 @@ const handleCastErrorDB = errCast => {
     return new AppError(message, 400);
 }
 
+const handleDuplicateFieldsDB = errDup => {
+    const value = errDup.errmsg.match(/(["'])(?:(?=(\\?))\2.)*?\1/)[0];
+    const message = `Duplicate field value: ${value}. Please use another value!`;
+    return new AppError(message, 400);
+}
+
 const sendErrorDev = (errorDev, res) => {
     res.status(errorDev.statusCode).json({
         status: errorDev.status,
@@ -49,6 +55,7 @@ const globalErrorHandler = (err, req, res, next) => {
         let errCopy = { ...err };
 
         if (errCopy.name === 'CastError') errCopy = handleCastErrorDB(errCopy);
+        if (errCopy.code === 11000) errCopy = handleDuplicateFieldsDB(errCopy);
 
         sendErrorProd(errCopy, res);
     }
