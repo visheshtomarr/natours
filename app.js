@@ -19,12 +19,6 @@ if (process.env.NODE_ENV === 'development') {
 // Middleware to send data through requests.
 app.use(express.json());
 
-
-app.use((req, res, next) => {
-    console.log('Hello from the middleware!');
-    next();
-});
-
 app.use((req, res, next) => {
     req.requestTime = new Date().toDateString();
     next();
