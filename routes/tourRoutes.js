@@ -10,6 +10,8 @@ const {
     getMonthlyPlan
 } = require('./../controllers/tourController');
 
+const { protected } = require('./../controllers/authController');
+
 const router = express.Router();
 
 // // A param middleware to check whether the id is valid or not.
@@ -32,7 +34,7 @@ router
 
 router
     .route('/')
-    .get(getAlltours)
+    .get(protected, getAlltours)
     .post(createTour);
 
 router

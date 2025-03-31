@@ -18,6 +18,10 @@ const handleValidationErrorDB = errValidation => {
     return new AppError(message, 400);
 }
 
+const handleJWTError = () => new AppError('Invalid token! Please login again.', 401)
+
+const handleJWTExpiredError = () => new AppError('Token has expired! Please login again.', 401)
+
 const sendErrorDev = (errorDev, res) => {
     res.status(errorDev.statusCode).json({
         status: errorDev.status,
@@ -39,7 +43,7 @@ const sendErrorProd = (errorProd, res) => {
     // and we don't leak the error details to client.
     else {
         // 1. Log to console.
-        // console.error('Error: ', err);
+        // console.error('Error: ', errorProd);
 
         // Send a generic error message.
         res.status(500).json({
@@ -64,6 +68,8 @@ const globalErrorHandler = (err, req, res, next) => {
         if (errCopy.name === 'CastError') errCopy = handleCastErrorDB(errCopy);
         if (errCopy.code === 11000) errCopy = handleDuplicateFieldsDB(errCopy);
         if (errCopy.name === 'ValidationError') errCopy = handleValidationErrorDB(errCopy);
+        if (errCopy.name === 'JsonWebTokenError') errCopy = handleJWTError();
+        if (errCopy.name === 'TokenExpiredError') errCopy = handleJWTExpiredError();
 
         sendErrorProd(errCopy, res);
     }
