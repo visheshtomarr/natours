@@ -53,7 +53,7 @@ const login = catchAsync(async (req, res, next) => {
     });
 });
 
-// Function to create protected routes.
+// Middleware function to create protected routes.
 const protected = catchAsync(async (req, res, next) => {
     // Get token if it's present.
     let token;
@@ -83,8 +83,25 @@ const protected = catchAsync(async (req, res, next) => {
     next();
 });
 
+// Middleware function to restrict certain functionality.
+const restrictedTo = (...roles) => {
+    return (req, res, next) => {
+        // 'roles' array should only contain either 'admin' or 'lead-guide' roles.
+        // We get the current user's role from the previous middleware that runs just before this one.
+        // If the current user's role is any other than 'admin' or 'lead-guide', further action cannot
+        // be performed.
+        if (!roles.includes(req.user.role)) {
+            return next(new AppError('You are not authorized to perform this action', 403));
+        }
+
+        next();
+    };
+}
+
+
 module.exports = {
     signup,
     login,
-    protected
+    protected,
+    restrictedTo
 }
