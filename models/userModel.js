@@ -60,6 +60,19 @@ userSchema.pre('save', async function (next) {
     next();
 });
 
+// Change the 'changePasswordAt' property of the user just before saving the new
+// password in the database.
+userSchema.pre('save', function (next) {
+    // If the password hasn't been modified or if the document is newly created,
+    // (which means the password will be modified) we return from the function.
+    if (!this.isModified('password') || this.isNew) return next();
+
+    // We want to save this field before issuing the token to user
+    // so that the token remains valid.
+    this.passwordChangedAt = Date.now() - 1000;
+    next();
+});
+
 // Instance method on our user schema to compare passwords.
 userSchema.methods.correctPassword = async function (candidatePassword, userPassword) {
     return await bcrypt.compare(candidatePassword, userPassword);

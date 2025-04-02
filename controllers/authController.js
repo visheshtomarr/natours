@@ -4,7 +4,7 @@ const User = require('./../models/userModel');
 const AppError = require('./../utils/appError');
 const catchAsync = require('./../utils/catchAsync');
 const sendEmail = require('./../utils/email');
-const { stat } = require('fs');
+const crypto = require('crypto');
 
 const signToken = id => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -113,8 +113,7 @@ const forgotPassword = catchAsync(async (req, res, next) => {
 
     // Send it to user's email.
     const resetURL = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;
-    const message = `Forgot your password? You can use the link to reset your password: ${resetURL}.\n If you
-    didn't forget your password, please ignore this email!`;
+    const message = `Forgot your password? You can use the link to reset your password: ${resetURL}.\nIf you didn't forget your password, please ignore this email!`;
 
     try {
         await sendEmail({
@@ -136,7 +135,39 @@ const forgotPassword = catchAsync(async (req, res, next) => {
     }
 });
 
-const resetPassword = catchAsync(async (req, res, next) => { });
+const resetPassword = catchAsync(async (req, res, next) => {
+    // Get the user based on the token
+    // Token saved in db is encrypted, so we will hash the token present in request.
+    const hashedToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
+
+    // This will find the user whose token matches the hashed token from the request and
+    // that the token is yet to expire.
+    const user = await User.findOne({
+        passwordResetToken: hashedToken,
+        // This will ensure whether the 'passwordResetExpires' field is greater than current date/time.
+        passwordResetExpires: { $gt: Date.now() }
+    })
+
+    // If there is user and the token is not expired, we set the new password
+    if (!user) {
+        return next(new AppError('Token is invalid or expired!', 400));
+    }
+    user.password = req.body.password;
+    user.passwordConfirm = req.body.passwordConfirm;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save();
+
+    // Change the 'changePasswordAt' property of user.
+
+    // Login the user, send jwt.
+    const token = signToken(user._id);
+
+    res.status(200).json({
+        status: 'success',
+        token
+    });
+});
 
 module.exports = {
     signup,
