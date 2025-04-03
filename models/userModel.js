@@ -43,7 +43,12 @@ const userSchema = new mongoose.Schema({
     },
     passwordChangedAt: Date,
     passwordResetToken: String,
-    passwordResetExpires: Date
+    passwordResetExpires: Date,
+    active: {
+        type: Boolean,
+        default: true,
+        select: false
+    }
 });
 
 // Hash user's password just before saving it into the database.
@@ -72,6 +77,14 @@ userSchema.pre('save', function (next) {
     this.passwordChangedAt = Date.now() - 1000;
     next();
 });
+
+// Query middleware to check for active users.
+userSchema.pre(/^find/, function (next) {
+    // This will run before every query that starts with 'find' and
+    // look for the users that doesn't have 'active' property set to false.
+    this.find({ active: { $ne: false } });
+    next()
+})
 
 // Instance method on our user schema to compare passwords.
 userSchema.methods.correctPassword = async function (candidatePassword, userPassword) {
