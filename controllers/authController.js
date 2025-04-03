@@ -12,6 +12,15 @@ const signToken = id => {
     });
 }
 
+const createAndSendToken = (user, statusCode, res) => {
+    const token = signToken(user._id);
+
+    res.status(statusCode).json({
+        status: 'success',
+        token
+    });
+}
+
 // Function to sign up a new user.
 const signup = catchAsync(async (req, res, next) => {
     const newUser = await User.create(req.body);
@@ -48,11 +57,7 @@ const login = catchAsync(async (req, res, next) => {
     }
 
     // If everything is Ok, send token to client.
-    const token = signToken(user._id);
-    res.status(200).json({
-        status: 'success',
-        token
-    });
+    createAndSendToken(user, 200, res);
 });
 
 // Middleware function to create protected routes.
@@ -161,12 +166,25 @@ const resetPassword = catchAsync(async (req, res, next) => {
     // Change the 'changePasswordAt' property of user.
 
     // Login the user, send jwt.
-    const token = signToken(user._id);
+    createAndSendToken(user, 200, res);
+});
 
-    res.status(200).json({
-        status: 'success',
-        token
-    });
+const updatePassword = catchAsync(async (req, res, next) => {
+    // Get user from the collection.
+    const user = await User.findById(req.user.id).select('+password');
+
+    // Check if the password posted is correct.
+    if (!(await user.correctPassword(req.body.passwordCurrent, user.password))) {
+        return next(new AppError('Please enter correct password!', 401));
+    }
+
+    // Update the password.
+    user.password = req.body.password;
+    user.passwordConfirm = req.body.passwordConfirm;
+    await user.save();
+
+    // Login the user, send jwt.
+    createAndSendToken(user, 200, res);
 });
 
 module.exports = {
@@ -175,5 +193,6 @@ module.exports = {
     protected,
     restrictedTo,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    updatePassword
 }
