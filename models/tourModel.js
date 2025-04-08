@@ -120,6 +120,14 @@ tourSchema.virtual('durationWeeks').get(function () {
     return this.duration / 7;
 });
 
+// Virtual populate
+// This will create a virtual field 'reviews' in the Tour model.
+tourSchema.virtual('reviews', {
+    ref: 'Review',
+    foreignField: 'tour',
+    localField: '_id'
+});
+
 // Document Middleware
 // This middleware only runs before '.save()' and '.create()' method.
 // This middleware is also called as pre-save hook.

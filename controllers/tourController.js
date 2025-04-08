@@ -117,7 +117,7 @@ const getAlltours = catchAsync(async (req, res, next) => {
 
 const getTour = catchAsync(async (req, res, next) => {
     // Find tour by id.
-    const tour = await Tour.findById(req.params.id);
+    const tour = await Tour.findById(req.params.id).populate('reviews');
 
     // if there is no tour, we send 404 not found response.
     if (!tour) {
