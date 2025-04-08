@@ -102,6 +102,13 @@ const tourSchema = new mongoose.Schema({
             description: String,
             day: Number
         }
+    ],
+    // Referencing the User document using IDs.
+    guides: [
+        {
+            type: mongoose.Schema.ObjectId,
+            ref: 'User'
+        }
     ]
 }, {
     toJSON: { virtuals: true },
@@ -134,6 +141,16 @@ tourSchema.pre('save', function (next) {
 tourSchema.pre(/^find/, function (next) {
     // 'this' will be a query object in this middlware.
     this.find({ secretTour: { $ne: 'true' } });
+    next();
+});
+
+// This will populate the 'guides' field with the actual user data
+// wherever a 'find' query is made using the Tour model.
+tourSchema.pre(/^find/, function (next) {
+    this.populate({
+        path: 'guides',
+        select: '-__v -passwordChangedAt'
+    });
     next();
 });
 
