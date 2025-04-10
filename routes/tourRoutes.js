@@ -11,6 +11,7 @@ const {
 } = require('./../controllers/tourController');
 
 const { protected, restrictedTo } = require('./../controllers/authController');
+const reviewRouter = require('./reviewRoutes');
 
 const router = express.Router();
 
@@ -42,5 +43,8 @@ router
     .get(getTour)
     .patch(updateTour)
     .delete(protected, restrictedTo('admin', 'lead-guide'), deleteTour);
+
+// Nested route for tour review
+router.use('/:tourId/reviews', reviewRouter);
 
 module.exports = router;

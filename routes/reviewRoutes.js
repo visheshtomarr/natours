@@ -2,7 +2,8 @@ const express = require('express');
 const { getAllReviews, createReview } = require('./../controllers/reviewController');
 const { protected, restrictedTo } = require('./../controllers/authController');
 
-const router = express.Router();
+// Merge params will get access to 'tourId' from the parent route.
+const router = express.Router({ mergeParams: true });
 
 router
     .route('/')
