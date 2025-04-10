@@ -6,9 +6,11 @@ const {
     updateUser,
     deleteUser,
     updateMe,
-    deleteMe
+    deleteMe,
+    getMe
 } = require('./../controllers/userController');
 const { signup, login, forgotPassword, resetPassword, protected, updatePassword } = require('../controllers/authController');
+const { getOne } = require('../controllers/handlerFactory');
 
 const router = express.Router();
 
@@ -20,6 +22,7 @@ router.patch('/resetPassword/:token', resetPassword);
 router.patch('/updatePassword', protected, updatePassword);
 router.patch('/updateMe', protected, updateMe);
 router.delete('/deleteMe', protected, deleteMe);
+router.get('/me', protected, getMe, getUser);
 
 router
     .route('/')

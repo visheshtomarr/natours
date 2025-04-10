@@ -24,6 +24,12 @@ const createUser = (req, res) => {
     });
 }
 
+// Middleware to set 'id' as params to get logged in user.
+const getMe = (req, res, next) => {
+    req.params.id = req.user.id;
+    next();
+}
+
 const updateMe = catchAsync(async (req, res, next) => {
     // We will return error if user tries to update password field.
     if (req.body.password || req.body.passwordConfirm) {
@@ -67,5 +73,6 @@ module.exports = {
     updateUser,
     deleteUser,
     updateMe,
-    deleteMe
+    deleteMe,
+    getMe
 }
