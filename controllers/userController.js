@@ -1,7 +1,7 @@
 const User = require('./../models/userModel');
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('../utils/appError');
-const factory = require('./handleFactory');
+const { deleteOne, updateOne } = require('./handleFactory');
 
 const filteredObj = (obj, ...allowedFields) => {
     const validObj = {};
@@ -73,14 +73,9 @@ const deleteMe = catchAsync(async (req, res, next) => {
     });
 });
 
-const updateUser = (req, res) => {
-    res.status(500).json({
-        status: 'error',
-        message: 'This route is not yet implemented!',
-    });
-}
-
-const deleteUser = factory.deleteOne(User);
+// Passwords can't be updated with this!
+const updateUser = updateOne(User);
+const deleteUser = deleteOne(User);
 
 module.exports = {
     getAllUsers,

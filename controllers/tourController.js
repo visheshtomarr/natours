@@ -2,7 +2,7 @@ const Tour = require('./../models/tourModel');
 const APIFeatures = require('./../utils/apiFeatures');
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
-const factory = require('./handleFactory');
+const { deleteOne, updateOne, createOne } = require('./handleFactory');
 
 // // Getting 'tours' data from file.
 // const tours = JSON.parse(
@@ -133,43 +133,9 @@ const getTour = catchAsync(async (req, res, next) => {
     });
 });
 
-const createTour = catchAsync(async (req, res, next) => {
-    // .create() method will create and save a new 
-    // tour in our database.
-    const newTour = await Tour.create(req.body);
-
-    res.status(201).json({
-        status: 'success',
-        data: {
-            tour: newTour
-        },
-    });
-});
-
-const updateTour = catchAsync(async (req, res, next) => {
-    // All the find methods on a model are query methods.
-    const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-        // returns the object after updation.
-        new: true,
-        // the validators specified in the schema will run when 
-        // document is updated.
-        runValidators: true
-    });
-
-    // if there is no tour, we send 404 not found response.
-    if (!tour) {
-        return next(new AppError('No tour found with that ID', 404));
-    }
-
-    res.status(200).json({
-        status: 'success',
-        data: {
-            tour
-        },
-    });
-});
-
-const deleteTour = factory.deleteOne(Tour);
+const createTour = createOne(Tour);
+const updateTour = updateOne(Tour);
+const deleteTour = deleteOne(Tour);
 
 module.exports = {
     getAlltours,
