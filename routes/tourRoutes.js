@@ -18,6 +18,9 @@ const router = express.Router();
 // // A param middleware to check whether the id is valid or not.
 // router.param('id', checkId);
 
+// Nested route for tour review
+router.use('/:tourId/reviews', reviewRouter);
+
 // Route to get the top 5 rated and cheapest tours.
 router
     .route('/top-5-cheap')
@@ -43,8 +46,5 @@ router
     .get(getTour)
     .patch(updateTour)
     .delete(protected, restrictedTo('admin', 'lead-guide'), deleteTour);
-
-// Nested route for tour review
-router.use('/:tourId/reviews', reviewRouter);
 
 module.exports = router;
