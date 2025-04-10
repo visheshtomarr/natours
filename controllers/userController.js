@@ -1,6 +1,7 @@
 const User = require('./../models/userModel');
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('../utils/appError');
+const factory = require('./handleFactory');
 
 const filteredObj = (obj, ...allowedFields) => {
     const validObj = {};
@@ -15,6 +16,7 @@ const getAllUsers = catchAsync(async (req, res, next) => {
 
     res.status(200).json({
         status: 'success',
+        results: users.length,
         data: {
             users
         }
@@ -78,12 +80,7 @@ const updateUser = (req, res) => {
     });
 }
 
-const deleteUser = (req, res) => {
-    res.status(500).json({
-        status: 'error',
-        message: 'This route is not yet implemented!',
-    });
-}
+const deleteUser = factory.deleteOne(User);
 
 module.exports = {
     getAllUsers,

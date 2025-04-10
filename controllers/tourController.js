@@ -2,6 +2,7 @@ const Tour = require('./../models/tourModel');
 const APIFeatures = require('./../utils/apiFeatures');
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
+const factory = require('./handleFactory');
 
 // // Getting 'tours' data from file.
 // const tours = JSON.parse(
@@ -168,20 +169,7 @@ const updateTour = catchAsync(async (req, res, next) => {
     });
 });
 
-const deleteTour = catchAsync(async (req, res, next) => {
-    const tour = await Tour.findByIdAndDelete(req.params.id);
-
-    // if there is no tour, we send 404 not found response.
-    if (!tour) {
-        return next(new AppError('No tour found with that ID', 404));
-    }
-
-    // Status '204' means no content, so we send 'null'. 
-    res.status(204).json({
-        status: 'success',
-        data: null,
-    });
-});
+const deleteTour = factory.deleteOne(Tour);
 
 module.exports = {
     getAlltours,
