@@ -34,17 +34,21 @@ router
 // Route to get monthly plan for tours.
 router
     .route('/monthly-plan/:year')
-    .get(getMonthlyPlan);
+    .get(
+        protected,
+        restrictedTo('admin', 'lead-guide', 'guide'),
+        getMonthlyPlan
+    );
 
 router
     .route('/')
-    .get(protected, getAlltours)
-    .post(createTour);
+    .get(getAlltours)
+    .post(protected, restrictedTo('admin', 'lead-guide'), createTour);
 
 router
     .route('/:id')
     .get(getTour)
-    .patch(updateTour)
+    .patch(protected, restrictedTo('admin', 'lead-guide'), updateTour)
     .delete(protected, restrictedTo('admin', 'lead-guide'), deleteTour);
 
 module.exports = router;

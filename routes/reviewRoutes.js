@@ -12,20 +12,17 @@ const { protected, restrictedTo } = require('./../controllers/authController');
 // Merge params will get access to 'tourId' from the parent route.
 const router = express.Router({ mergeParams: true });
 
+router.use(protected);
+
 router
     .route('/')
     .get(getAllReviews)
-    .post(
-        protected,
-        restrictedTo('user'),
-        setTourUserIds,
-        createReview
-    );
+    .post(restrictedTo('user'), setTourUserIds, createReview);
 
 router
     .route('/:id')
     .get(getReview)
-    .patch(updateReview)
-    .delete(deleteReview);
+    .patch(restrictedTo('user', 'admin'), updateReview)
+    .delete(restrictedTo('user', 'admin'), deleteReview);
 
 module.exports = router;
