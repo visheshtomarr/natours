@@ -1,6 +1,6 @@
 const Tour = require('./../models/tourModel');
 const catchAsync = require('./../utils/catchAsync');
-// const AppError = require('./../utils/appError');
+const AppError = require('./../utils/appError');
 const { deleteOne, updateOne, createOne, getOne, getAll } = require('./handlerFactory');
 
 // A middleware for requesting top 5 cheapest tours.
@@ -89,6 +89,39 @@ const getMonthlyPlan = catchAsync(async (req, res, next) => {
     });
 });
 
+const getToursWithin = catchAsync(async (req, res, next) => {
+    const { distance, latlng, unit } = req.params;
+    const [lat, lng] = latlng.split(',');
+
+    // Calculate radius in radians.
+    const radius = unit === 'mi' ? distance / 3963.2 : distance / 6378.1;
+
+    if (!lat || !lng) {
+        return next(new AppError(
+            'Please provide latitude and longitude in the format lat,lng.',
+            400
+        ));
+    }
+
+    const tours = await Tour.find({
+        // This will start looking for tours from the specified location as centre 
+        // within the radius defined as distance.
+        startLocation: {
+            $geoWithin: {
+                $centerSphere: [[lng, lat], radius]
+            }
+        }
+    });
+
+    res.status(200).json({
+        status: 'success',
+        results: tours.length,
+        data: {
+            data: tours
+        }
+    });
+});
+
 const getAlltours = getAll(Tour);
 const getTour = getOne(Tour, { path: 'reviews' });
 const createTour = createOne(Tour);
@@ -103,5 +136,6 @@ module.exports = {
     deleteTour,
     aliasTopTours,
     getTourStats,
-    getMonthlyPlan
+    getMonthlyPlan,
+    getToursWithin
 }

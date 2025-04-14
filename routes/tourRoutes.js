@@ -7,7 +7,8 @@ const {
     deleteTour,
     aliasTopTours,
     getTourStats,
-    getMonthlyPlan
+    getMonthlyPlan,
+    getToursWithin
 } = require('./../controllers/tourController');
 
 const { protected, restrictedTo } = require('./../controllers/authController');
@@ -39,6 +40,11 @@ router
         restrictedTo('admin', 'lead-guide', 'guide'),
         getMonthlyPlan
     );
+
+// Route to get tours within a certain distance.
+router
+    .route('/tours-within/:distance/center/:latlng/unit/:unit')
+    .get(getToursWithin);
 
 router
     .route('/')
