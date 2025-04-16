@@ -170,12 +170,12 @@ tourSchema.pre(/^find/, function (next) {
 
 // Aggregation middleware
 // This middleware can be used to edit the aggregation pipeline
-tourSchema.pre('aggregate', function (next) {
-    this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+// tourSchema.pre('aggregate', function (next) {
+//     this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
 
-    console.log(this.pipeline());
-    next();
-});
+//     console.log(this.pipeline());
+//     next();
+// });
 
 // Creates a model from our schema.
 const Tour = mongoose.model('Tour', tourSchema);
