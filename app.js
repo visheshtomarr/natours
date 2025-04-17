@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
@@ -13,9 +14,16 @@ const reviewRouter = require('./routes/reviewRoutes');
 
 const app = express();
 
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
+
 // MIDDLEWARES
 // All the middlewares in the "Middleware stack" has access to the
 // 'req', 'res' and 'next' variable.
+
+// Serving static files
+app.use(express.static(path.join(__dirname, 'public')));
+
 app.use(helmet());
 
 if (process.env.NODE_ENV === 'development') {
@@ -61,6 +69,13 @@ app.use((req, res, next) => {
 
 // ROUTES
 // Router middleware
+app.get('/', (req, res) => {
+    res.status(200).render('base', {
+        tour: 'The Forest Hiker',
+        user: 'Vishesh'
+    });
+});
+
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
