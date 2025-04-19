@@ -23,7 +23,14 @@ const getTour = catchAsync(async (req, res, next) => {
     });
 });
 
+const getLoginForm = (req, res, next) => {
+    res.status(200).render('login', {
+        title: 'Login'
+    });
+};
+
 module.exports = {
     getOverview,
-    getTour
+    getTour,
+    getLoginForm
 }
