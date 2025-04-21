@@ -64,6 +64,15 @@ const login = catchAsync(async (req, res, next) => {
     createAndSendToken(user, 200, res);
 });
 
+// Function to logout the current user.
+const logout = (req, res) => {
+    res.cookie('jwt', 'loggedout', {
+        expiresIn: new Date(Date.now() + 10 * 1000),
+        httpOnly: true
+    });
+    res.status(200).json({ status: 'success' });
+}
+
 // Middleware function to create protected routes.
 const protected = catchAsync(async (req, res, next) => {
     // Get token if it's present.
@@ -96,31 +105,35 @@ const protected = catchAsync(async (req, res, next) => {
     next();
 });
 
-const isLoggedIn = catchAsync(async (req, res, next) => {
+const isLoggedIn = async (req, res, next) => {
     if (req.cookies.jwt) {
-        // Verify token
-        const payload = await promisify(jwt.verify)(
-            req.cookies.jwt,
-            process.env.JWT_SECRET
-        );
+        try {
+            // Verify token
+            const payload = await promisify(jwt.verify)(
+                req.cookies.jwt,
+                process.env.JWT_SECRET
+            );
 
-        // Check if user still exists
-        const currentUser = await User.findById(payload.id);
-        if (!currentUser) {
+            // Check if user still exists
+            const currentUser = await User.findById(payload.id);
+            if (!currentUser) {
+                return next();
+            }
+
+            // Check if user changed password after token is issued
+            if (currentUser.changedPasswordAfter(payload.iat)) {
+                return next();
+            }
+
+            // The user is logged in. 
+            res.locals.user = currentUser;
+            return next();
+        } catch (error) {
             return next();
         }
-
-        // Check if user changed password after token is issued
-        if (currentUser.changedPasswordAfter(payload.iat)) {
-            return next();
-        }
-
-        // The user is logged in. 
-        res.locals.user = currentUser;
-        return next();
     }
     next();
-});
+}
 
 // Middleware function to restrict certain functionality.
 const restrictedTo = (...roles) => {
@@ -227,5 +240,6 @@ module.exports = {
     forgotPassword,
     resetPassword,
     updatePassword,
-    isLoggedIn
+    isLoggedIn,
+    logout
 }
