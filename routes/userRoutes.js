@@ -7,7 +7,8 @@ const {
     deleteUser,
     updateMe,
     deleteMe,
-    getMe
+    getMe,
+    uploadUserPhoto
 } = require('./../controllers/userController');
 const {
     signup,
@@ -32,7 +33,7 @@ router.use(protected);
 
 // All these routes will be protected.
 router.patch('/updatePassword', updatePassword);
-router.patch('/updateMe', updateMe);
+router.patch('/updateMe', uploadUserPhoto, updateMe);
 router.delete('/deleteMe', deleteMe);
 router.get('/me', getMe, getUser);
 
