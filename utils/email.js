@@ -12,7 +12,14 @@ class Email {
 
     newTransport() {
         if (process.env.NODE_ENV === 'production') {
-            return 1;
+            // Use Sendgrid to send actual emails.
+            return nodemailer.createTransport({
+                service: 'SendGrid',
+                auth: {
+                    user: process.env.SENDGRID_USERNAME,
+                    pass: process.env.SENDGRID_PASSWORD
+                }
+            });
         }
 
         return nodemailer.createTransport({
