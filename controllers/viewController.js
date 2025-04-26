@@ -35,6 +35,12 @@ const getLoginForm = (req, res, next) => {
     });
 };
 
+const getSignupForm = (req, res, next) => {
+    res.status(200).render('signup', {
+        title: 'Signup'
+    });
+};
+
 const getAccount = (req, res) => {
     res.status(200).render('account', {
         title: 'My account'
@@ -58,5 +64,6 @@ module.exports = {
     getTour,
     getLoginForm,
     getAccount,
-    getMyTours
+    getMyTours,
+    getSignupForm
 }
