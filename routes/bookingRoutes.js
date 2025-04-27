@@ -5,10 +5,7 @@ const { protected, restrictedTo } = require('./../controllers/authController');
 const router = express.Router();
 
 router.use(protected);
-router.get(
-    '/checkout-session/:tourId',
-    getCheckoutSession
-);
+router.get('/checkout-session/:tourId', getCheckoutSession);
 
 router.use(restrictedTo('admin', 'lead-guide'));
 router
