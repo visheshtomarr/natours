@@ -8,6 +8,7 @@ const xss = require('xss-clean');
 const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
 const compression = require('compression');
+const cors = require('cors');
 
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
@@ -25,6 +26,9 @@ app.set('views', path.join(__dirname, 'views'));
 // MIDDLEWARES
 // All the middlewares in the "Middleware stack" has access to the
 // 'req', 'res' and 'next' variable.
+// Implement CORS
+app.use(cors());
+app.options('*', cors());
 
 // Serving static files
 app.use(express.static(path.join(__dirname, 'public')));
