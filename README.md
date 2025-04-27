@@ -146,6 +146,10 @@ Natours is a full-stack web application for booking and managing tours. It is de
 
 This project is open-sourced under the [MIT license](https://opensource.org/licenses/MIT).
 
+## Deplopyment
+
+The project is live: https://natours-vishesh.onrender.com
+
 ## Acknowledgement 🙏🏻
 
 - This project is part of the online course I've taken at Udemy. Thanks to @[jonasschmedtmann](https://github.com/jonasschmedtmann) for creating this awesome course!
